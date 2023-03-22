@@ -1,125 +1,149 @@
-#include "stdio.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define MAX_SIZE 100 // максимальный размер множества
+#define MAX_SET_SIZE 100
 
-typedef struct {
-    int elements[MAX_SIZE]; // элементы множества
-    int size; // текущий размер множества
+typedef struct Set {
+    char* elements[MAX_SET_SIZE];
+    int size;
 } Set;
 
-void initializeSet(Set *set) {
+void initialize(Set* set) {
     set->size = 0;
 }
 
-void inputSet(Set *set) {
-    int i, n;
-
-    printf("Введите размер множества: ");
-    scanf("%d", &n);
-
-    printf("Введите элементы множества: ");
-    for (i = 0; i < n; i++) {
-        scanf("%d", &set->elements[i]);
-    }
-
-    set->size = n;
-}
-
-void outputSet(Set set) {
-    int i;
-
-    printf("Элементы множества: ");
-    for (i = 0; i < set.size; i++) {
-        printf("%d ", set.elements[i]);
-    }
-    printf("\n");
-}
-
-void addElement(Set *set, int element) {
-    if (set->size == MAX_SIZE) {
-        printf("Множество уже максимального размера\n");
-        return;
-    }
-
-    set->elements[set->size] = element;
-    set->size++;
-}
-
-void removeElement(Set *set, int element) {
-    int i, j;
-
-    for (i = 0; i < set->size; i++) {
-        if (set->elements[i] == element) {
-            // сдвигаем элементы на одну позицию влево, чтобы удалить элемент
-            for (j = i; j < set->size - 1; j++) {
-                set->elements[j] = set->elements[j+1];
+void addElement(Set* set, char* element) {
+    if (set->size < MAX_SET_SIZE) {
+        int i;
+        for (i = 0; i < set->size; i++) {
+            if (strcmp(set->elements[i], element) == 0) {
+                printf("Error: element already exists in set\n");
+                return;
             }
+        }
+        set->elements[set->size] = strdup(element);
+        set->size++;
+    }
+    else {
+        printf("Error: set is full\n");
+    }
+}
+
+void removeElement(Set* set, char* element) {
+    int i;
+    for (i = 0; i < set->size; i++) {
+        if (strcmp(set->elements[i], element) == 0) {
+            free(set->elements[i]);
+            set->elements[i] = set->elements[set->size - 1];
             set->size--;
-            printf("Элемент %d удален из множества\n", element);
             return;
         }
     }
+    printf("Error: element not found in set\n");
+}
 
-    printf("Элемент %d не найден в множестве\n", element);
+void outPutSets(Set* set) {
+    int i;
+    for (i = 0; i < set->size; i++) {
+        printf("%s\n", set->elements[i]);
+    }
 }
 
 int main() {
     Set set1, set2;
-    int operation, element;
+    initialize(&set1);
+    initialize(&set2);
 
-    initializeSet(&set1);
-    initializeSet(&set2);
+    int i, n;
+    char input[100];
 
-    while (1) {
-        printf("1. Задать множества\n");
-        printf("2. Вывести множества\n");
-        printf("3. Добавить элемент в множество 1\n");
-        printf("4. Добавить элемент в множество 2\n");
-        printf("5. Удалить элемент из множества 1\n");
-        printf("6. Удалить элемент из множества 2\n");
-        printf("7. Выйти\n");
-        printf("Выберите действие (1-7): ");
-        scanf("%d", &operation);
+    printf("Enter the number of elements in set1:\n");
+    scanf("%d", &n);
+    printf("Enter %d elements for set1:\n", n);
+    for (i = 0; i < n; i++) {
+        scanf("%s", input);
+        addElement(&set1, input);
+    }
 
-        switch (operation) {
+    printf("Enter the number of elements in set2:\n");
+    scanf("%d", &n);
+    printf("Enter %d elements for set2:\n", n);
+    for (i = 0; i < n; i++) {
+        scanf("%s", input);
+        addElement(&set2, input);
+    }
+
+    int command = 0;
+
+    while (command != 6) {
+        printf("\nEnter a command:\n");
+        printf("1. Add element to set1\n");
+        printf("2. Add element to set2\n");
+        printf("3. Remove element from set1\n");
+        printf("4. Remove element from set2\n");
+        printf("5. Print elements of both sets\n");
+        printf("6. Exit\n");
+
+        scanf("%d", &command);
+
+        switch (command) {
             case 1:
-                printf("Введите элементы первого множества:\n");
-                inputSet(&set1);
-                printf("Введите элементы второго множества:\n");
-                inputSet(&set2);
+                printf("Enter an element to add to set1:\n");
+                scanf("%s", input);
+                addElement(&set1, input);
+                printf("Set 1 after adding element:\n");
+                outPutSets(&set1);
                 break;
+
             case 2:
-                printf("Первое множество\n");
-                outputSet(set1);
-                printf("Второе множество\n");
-                outputSet(set2);
+                printf("Enter an element to add to set2:\n");
+                scanf("%s", input);
+                addElement(&set2, input);
+                printf("Set 2 after adding element:\n");
+                outPutSets(&set2);
                 break;
+
             case 3:
-                printf("Введите элемент, который нужно добавить в множество 1: ");
-                scanf("%d", &element);
-                addElement(&set1, element);
+                printf("Enter an element to remove from set1:\n");
+                scanf("%s", input);
+
+                removeElement(&set1, input);
+                printf("Set 1 after removing element:\n");
+                outPutSets(&set1);
                 break;
+
             case 4:
-                printf("Введите элемент, который нужно добавить в множество 2: ");
-                scanf("%d", &element);
-                addElement(&set2, element);
+                printf("Enter an element to remove from set2:\n");
+                scanf("%s", input);
+                removeElement(&set2, input);
+                printf("Set 2 after removing element:\n");
+                outPutSets(&set2);
                 break;
+
             case 5:
-                printf("Введите элемент, который нужно удалить из множества 1: ");
-                scanf("%d", &element);
-                removeElement(&set1, element);
+                printf("Elements of set1:\n");
+                outPutSets(&set1);
+                printf("Elements of set2:\n");
+                outPutSets(&set2);
                 break;
+
             case 6:
-                printf("Введите элемент, который нужно удалить из множества 2: ");
-                scanf("%d", &element);
-                removeElement(&set2, element);
                 break;
-            case 7:
-                exit(0);
+
             default:
-                printf("Неверный выбор\n");
+                printf("Invalid command\n");
                 break;
         }
     }
+
+// free memory allocated for elements
+    for (i = 0; i < set1.size; i++) {
+        free(set1.elements[i]);
+    }
+    for (i = 0; i < set2.size; i++) {
+        free(set2.elements[i]);
+    }
+
+    return 0;
 }
